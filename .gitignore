@@ -1,0 +1,68 @@
+# ============================================================
+# 瞰途 VisionTrack · Git 版本控制忽略规则
+# 原则：源码 / 配置 / 轻量必需资源入库；环境、缓存、密钥、大文件不入库
+# ============================================================
+
+# ---------- 1. Python 虚拟环境与字节码缓存 ----------
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ---------- 2. 本地离线安装包（根目录 wheel 约 2.4GB，勿入库） ----------
+*.whl
+
+# ---------- 3. 密钥与本地环境变量（防止 API Key 泄露） ----------
+.env
+.env.*
+!.env.example
+
+# ---------- 4. IDE / 编辑器个人配置 ----------
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# ---------- 5. 操作系统生成文件 ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- 6. 日志、测试与运行产物 ----------
+*.log
+logs/
+runs/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.pid
+
+# ---------- 7. 临时上传 / 调试产物 ----------
+runtime/uploads/*
+!runtime/uploads/.gitkeep
+runtime/_edgeprofile/
+tmp/
+temp/
+*.tmp
+
+# ---------- 8. AI 工具本地状态（仅不入库，不删除） ----------
+.workbuddy/
+
+# ---------- 9. 旧版 YOLO 权重（单文件 200MB+，超出托管平台限制） ----------
+legacy/**/*.weights
+legacy/**/*.pt
+
+# ---------- 10. 大体积样例视频（仅保留两个轻量演示文件） ----------
+data/videos/samples/*
+!data/videos/samples/pedestrian.mp4
+!data/videos/samples/overpass-det.avi

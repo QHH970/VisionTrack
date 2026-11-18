@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="瞰途 · 智能车辆视觉监测平台，基于 YOLO11 深度学习模型的车辆目标检测与交通态势分析系统"
+    />
+    <title>瞰途 · 智能车辆视觉监测平台</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- ============ 侧边导航 ============ -->
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <div class="brand-logo" aria-hidden="true">
+            <svg viewBox="0 0 44 44" fill="none">
+              <path d="M6 14V9a3 3 0 0 1 3-3h5M30 6h5a3 3 0 0 1 3 3v5M38 30v5a3 3 0 0 1-3 3h-5M14 38H9a3 3 0 0 1-3-3v-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" />
+              <path d="M11 22s4-6.5 11-6.5S33 22 33 22s-4 6.5-11 6.5S11 22 11 22Z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" />
+              <circle cx="22" cy="22" r="3.4" fill="currentColor" />
+            </svg>
+          </div>
+          <div class="brand-copy">
+            <div class="brand-cn">瞰途</div>
+            <div class="brand-en">VISIONTRACK</div>
+          </div>
+        </div>
+
+        <div class="nav-block">
+          <div class="nav-label">检测工作台</div>
+          <nav class="nav-list" aria-label="检测模式导航">
+            <button class="tab nav-item active" data-tab="image" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="16" rx="2.5" stroke="currentColor" stroke-width="1.8" />
+                <circle cx="8.5" cy="9.5" r="1.8" stroke="currentColor" stroke-width="1.6" />
+                <path d="m4 17 4.5-4.5 3.2 3.2 2.6-2.4L20 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span>图片检测</span>
+              <i class="nav-arrow"></i>
+            </button>
+            <button class="tab nav-item" data-tab="video" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3" y="5" width="13" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8" />
+                <path d="m16 10 5-3v10l-5-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+              </svg>
+              <span>视频检测</span>
+              <i class="nav-arrow"></i>
+            </button>
+            <button class="tab nav-item" data-tab="camera" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 8.5h3l1.6-2h6.8L17 8.5h3a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 20 19.5H4A1.5 1.5 0 0 1 2.5 18v-8A1.5 1.5 0 0 1 4 8.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+                <circle cx="12" cy="14" r="3.5" stroke="currentColor" stroke-width="1.8" />
+              </svg>
+              <span>实时摄像头</span>
+              <i class="nav-arrow"></i>
+            </button>
+          </nav>
+        </div>
+
+        <div class="nav-block system-block">
+          <div class="nav-label">系统信息</div>
+          <div class="sys-card">
+            <div class="sys-row"><span>检测模型</span><b id="modelStatus">yolo11n.pt</b></div>
+            <div class="sys-row"><span>推理框架</span><b>Ultralytics</b></div>
+            <div class="sys-row"><span>目标类别</span><b>6 类车辆</b></div>
+            <div class="sys-row"><span>置信阈值</span><b>0.35</b></div>
+          </div>
+        </div>
+
+        <div class="sidebar-foot">
+          <span class="pulse-dot"></span>
+          <div>
+            <strong>检测服务运行正常</strong>
+            <small>Detection engine online</small>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ============ 主区域 ============ -->
+      <div class="main-wrap">
+        <header class="topbar">
+          <button class="menu-btn" id="menuBtn" type="button" aria-label="打开导航">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+          </button>
+          <div class="page-heading">
+            <h1>智能车辆视觉监测平台</h1>
+            <p>基于 YOLO11 深度学习模型的车辆目标检测与交通态势分析</p>
+          </div>
+          <div class="topbar-actions">
+            <div class="live-pill"><i></i> 实时监测中</div>
+            <div class="clock" id="clock">--:--:--</div>
+          </div>
+        </header>
+
+        <main class="content">
+          <!-- 数据概览 -->
+          <section class="stats" aria-label="检测数据概览">
+            <article class="stat-card stat-primary">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M5 16v-4l1.8-4.4A2 2 0 0 1 8.6 6.5h6.8a2 2 0 0 1 1.8 1.1L19 12v4M4 16h16v2.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V16Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /><path d="M7.5 16v-3h9v3" stroke="currentColor" stroke-width="1.8" /><circle cx="8" cy="13" r="1" fill="currentColor" /><circle cx="16" cy="13" r="1" fill="currentColor" /></svg>
+              </div>
+              <div class="stat-body">
+                <span class="stat-label">车辆目标总数</span>
+                <strong class="stat-value" id="totalCount">0</strong>
+                <span class="stat-foot">当前画面检测目标</span>
+              </div>
+              <span class="stat-chip">LIVE</span>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-icon icon-sky">
+                <svg viewBox="0 0 24 24" fill="none"><path d="m12 3 9 5-9 5-9-5 9-5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /><path d="m3 12 9 5 9-5M3 16l9 5 9-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+              <div class="stat-body">
+                <span class="stat-label">车辆类别</span>
+                <strong class="stat-value" id="classCount">0</strong>
+                <span class="stat-foot">已识别目标类别数</span>
+              </div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-icon icon-indigo">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /></svg>
+              </div>
+              <div class="stat-body">
+                <span class="stat-label">检测耗时</span>
+                <strong class="stat-value stat-value-sm" id="latency">-- ms</strong>
+                <span class="stat-foot">单帧推理响应时间</span>
+              </div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-icon icon-teal">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 4.5 6v5.5c0 4.6 3.1 8 7.5 9.5 4.4-1.5 7.5-4.9 7.5-9.5V6L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+              <div class="stat-body">
+                <span class="stat-label">系统状态</span>
+                <strong class="stat-value stat-value-text">在线运行</strong>
+                <span class="stat-foot">检测服务连接正常</span>
+              </div>
+            </article>
+          </section>
+
+          <!-- 工作区 -->
+          <div class="work-grid">
+            <section class="work-card">
+              <div class="work-head">
+                <div class="work-heading">
+                  <h2>检测工作台</h2>
+                  <p>选择检测模式并载入数据，实时查看车辆识别结果</p>
+                </div>
+                <div class="mode-tabs" role="tablist" aria-label="检测模式">
+                  <button class="tab pill active" data-tab="image" type="button">图片</button>
+                  <button class="tab pill" data-tab="video" type="button">视频</button>
+                  <button class="tab pill" data-tab="camera" type="button">摄像头</button>
+                </div>
+              </div>
+
+              <!-- 图片检测 -->
+              <div class="panel active" id="imagePanel">
+                <div class="panel-toolbar">
+                  <label class="btn btn-upload">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /><path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+                    上传图片
+                    <input id="imageInput" type="file" accept="image/*" />
+                  </label>
+                  <span class="file-name" id="imageFileName">未选择文件</span>
+                  <button class="btn btn-primary" id="imageDetectBtn" type="button">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="m5 12 4.5 4.5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    开始检测
+                  </button>
+                </div>
+                <div class="viewer" id="imageViewer">
+                  <span class="corner tl"></span><span class="corner tr"></span>
+                  <span class="corner bl"></span><span class="corner br"></span>
+                  <div class="viewer-tag">IMAGE DETECTION</div>
+                  <img id="imageResult" alt="图片检测结果" />
+                  <div class="placeholder" id="imagePlaceholder">
+                    <div class="ph-icon">
+                      <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7" /><circle cx="8.5" cy="9.5" r="1.7" stroke="currentColor" stroke-width="1.5" /><path d="m4 17 4.5-4.5 3.2 3.2 2.6-2.4L20 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </div>
+                    <strong>上传道路图片开始检测</strong>
+                    <span>支持 JPG / PNG / BMP 格式，自动识别并标注车辆目标</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 视频检测 -->
+              <div class="panel" id="videoPanel">
+                <div class="panel-toolbar">
+                  <label class="btn btn-upload">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /><path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+                    上传视频
+                    <input id="videoInput" type="file" accept="video/*" />
+                  </label>
+                  <span class="file-name" id="videoFileName">未选择文件</span>
+                  <button class="btn btn-primary" id="videoDetectBtn" type="button">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l11-6.5-11-6.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /></svg>
+                    播放检测流
+                  </button>
+                </div>
+                <div class="viewer" id="videoViewer">
+                  <span class="corner tl"></span><span class="corner tr"></span>
+                  <span class="corner bl"></span><span class="corner br"></span>
+                  <div class="viewer-tag">VIDEO STREAM</div>
+                  <img id="videoResult" alt="视频检测流" />
+                  <div class="placeholder" id="videoPlaceholder">
+                    <div class="ph-icon">
+                      <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="13" height="14" rx="2.5" stroke="currentColor" stroke-width="1.7" /><path d="m16 10 5-3v10l-5-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /></svg>
+                    </div>
+                    <strong id="videoPlaceholderTitle">上传视频文件开始检测</strong>
+                    <span>支持 MP4 / AVI / MOV / MKV / WEBM 格式</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 实时摄像头 -->
+              <div class="panel" id="cameraPanel">
+                <div class="panel-toolbar">
+                  <button class="btn btn-primary" id="startCameraBtn" type="button">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M4 8.5h3l1.6-2h6.8L17 8.5h3a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 20 19.5H4A1.5 1.5 0 0 1 2.5 18v-8A1.5 1.5 0 0 1 4 8.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /><circle cx="12" cy="14" r="3.3" stroke="currentColor" stroke-width="1.8" /></svg>
+                    打开摄像头
+                  </button>
+                  <button class="btn btn-danger" id="stopCameraBtn" type="button" disabled>
+                    <svg viewBox="0 0 24 24" fill="none"><rect x="6" y="6" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.8" /></svg>
+                    停止检测
+                  </button>
+                  <span class="hint" id="cameraHint">摄像头待连接</span>
+                </div>
+                <div class="viewer camera-viewer" id="cameraViewer">
+                  <div class="cam-pane">
+                    <span class="cam-label">原始画面</span>
+                    <video id="cameraVideo" autoplay muted playsinline></video>
+                    <div class="cam-empty" id="camVideoEmpty">摄像头未连接</div>
+                  </div>
+                  <div class="cam-divider"></div>
+                  <div class="cam-pane">
+                    <span class="cam-label">检测结果</span>
+                    <img id="cameraResult" alt="实时检测结果" />
+                    <div class="placeholder" id="cameraPlaceholder">
+                      <div class="ph-icon">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16ZM21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /><circle cx="11" cy="11" r="2.6" stroke="currentColor" stroke-width="1.7" /></svg>
+                      </div>
+                      <strong>等待摄像头画面</strong>
+                      <span>打开摄像头后实时显示车辆检测画面</span>
+                    </div>
+                  </div>
+                  <canvas id="cameraCanvas"></canvas>
+                </div>
+              </div>
+            </section>
+
+            <!-- 数据洞察栏 -->
+            <aside class="insight-col">
+              <section class="insight-card">
+                <div class="card-head">
+                  <h3>分类统计</h3>
+                  <span class="tag">实时数据</span>
+                </div>
+                <div id="countsList" class="empty counts-list">暂无检测结果</div>
+              </section>
+
+              <section class="insight-card">
+                <div class="card-head">
+                  <h3>检测明细</h3>
+                  <span class="tag" id="detectionCount">0 项目标</span>
+                </div>
+                <div id="detectionsList" class="detections empty">暂无目标</div>
+              </section>
+
+              <section class="insight-card ai-card">
+                <div class="card-head">
+                  <div class="ai-title">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /><path d="m18.5 16 .7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></svg>
+                    <h3>AI 态势分析</h3>
+                  </div>
+                  <button class="btn btn-ghost" id="adviceBtn" type="button">生成建议</button>
+                </div>
+                <p id="adviceText" class="advice">点击「生成建议」，系统将基于最新检测结果分析交通态势并给出处置建议。未配置大模型 API 时自动使用本地规则生成。</p>
+              </section>
+            </aside>
+          </div>
+
+          <footer class="page-foot">
+            <span>© 2026 瞰途 VisionTrack · 智能车辆视觉监测平台</span>
+            <span>毕业设计作品 · 基于 YOLO11 的车辆目标检测与交通态势分析</span>
+          </footer>
+        </main>
+      </div>
+    </div>
+
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
