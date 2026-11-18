@@ -92,13 +92,7 @@ http://127.0.0.1:8000
 - `data/videos/samples/` 中的大视频、`legacy/**/*.weights`：单文件超 100MB，超出主流托管平台限制
 - `.idea/`、`.vscode/`、`__pycache__/`、`runtime/uploads/`、`runtime/_edgeprofile/`：IDE 配置与运行临时文件
 
-修改代码后的常规流程：
 
-```bash
-git status
-git add <改动的文件>
-git commit -m "说明本次改动"
-git push
 ```
 
 ## 可选大模型 API
